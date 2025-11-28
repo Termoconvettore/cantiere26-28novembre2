@@ -13,14 +13,28 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
+      
       const mindarThree = new window.MINDAR.IMAGE.MindARThree({
         container: document.body,
-        imageTargetSrc: "./mindar-image-target.mind"
+        // Il percorso è confermato come corretto
+        imageTargetSrc: "./mindar-image-target.mind" 
       });
 
       const {renderer, scene, camera} = mindarThree;
 
       const video = document.querySelector("#video");
+      
+      // *** FIX PER LA TEXTURE NERA: Aspetta che il video sia caricato ***
+      await new Promise(resolve => {
+        // Usa oncanplaythrough per assicurarsi che il browser possa riprodurre il video senza interruzioni
+        if (video.readyState >= 4) {
+            resolve();
+        } else {
+            video.oncanplaythrough = resolve;
+        }
+      });
+      // ********************************************************************
+      
       const texture = new THREE.VideoTexture(video);
 
       const plane = new THREE.Mesh(
@@ -31,25 +45,19 @@
       const anchor = mindarThree.addAnchor(0); 
       anchor.group.add(plane);
 
-      // ***** QUESTO È IL NUOVO CODICE AGGIUNTO PER IL DEBUG *****
-      
-      // Dice cosa fare quando il sistema riconosce il marker
+      // ***** EVENTI DI DEBUG E CONTROLLO PLAY/PAUSE *****
       anchor.onTargetFound = () => {
           console.log("✅ MARKER TROVATO! Avvio l'animazione.");
           video.play();
       };
 
-      // Dice cosa fare quando il sistema perde il marker
       anchor.onTargetLost = () => {
           console.log("❌ MARKER PERSO! Metto in pausa l'animazione.");
           video.pause();
       };
-      
-      // **********************************************************
+      // **************************************************
 
       await mindarThree.start();
-      
-      // Ho tolto video.play() da qui perché ora è gestito da onTargetFound
 
       const loop = () => {
         renderer.render(scene, camera);
