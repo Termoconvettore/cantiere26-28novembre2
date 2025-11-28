@@ -31,8 +31,25 @@
       const anchor = mindarThree.addAnchor(0); 
       anchor.group.add(plane);
 
+      // ***** QUESTO È IL NUOVO CODICE AGGIUNTO PER IL DEBUG *****
+      
+      // Dice cosa fare quando il sistema riconosce il marker
+      anchor.onTargetFound = () => {
+          console.log("✅ MARKER TROVATO! Avvio l'animazione.");
+          video.play();
+      };
+
+      // Dice cosa fare quando il sistema perde il marker
+      anchor.onTargetLost = () => {
+          console.log("❌ MARKER PERSO! Metto in pausa l'animazione.");
+          video.pause();
+      };
+      
+      // **********************************************************
+
       await mindarThree.start();
-      video.play();
+      
+      // Ho tolto video.play() da qui perché ora è gestito da onTargetFound
 
       const loop = () => {
         renderer.render(scene, camera);
@@ -42,6 +59,4 @@
     });
   </script>
 </body>
-</html>
-
 </html>
