@@ -5,18 +5,32 @@
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.0/dist/mindar-image-three.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
   <style>
-    body, html { margin: 0; overflow: hidden; }
+    /* FIX: Forza HTML, BODY e il Contenitore a occupare l'intera schermata */
+    body, html { 
+        margin: 0; 
+        overflow: hidden; 
+        width: 100%; 
+        height: 100%;
+    }
+    #container {
+        width: 100%; 
+        height: 100%; 
+        position: relative; /* Importante per il corretto rendering di MindAR */
+    }
   </style>
 </head>
 <body>
+  <div id="container"></div> 
+  
   <video id="video" src="video.mp4" loop muted playsinline preload="auto" style="display:none"></video>
 
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
       
+      const container = document.getElementById('container'); // Prende il riferimento al div
+
       const mindarThree = new window.MINDAR.IMAGE.MindARThree({
-        container: document.body,
-        // Il percorso è confermato come corretto
+        container: container, // Usa il div #container
         imageTargetSrc: "./mindar-image-target.mind" 
       });
 
@@ -24,16 +38,14 @@
 
       const video = document.querySelector("#video");
       
-      // *** FIX PER LA TEXTURE NERA: Aspetta che il video sia caricato ***
+      // FIX per la texture nera: aspetta che il video sia caricato
       await new Promise(resolve => {
-        // Usa oncanplaythrough per assicurarsi che il browser possa riprodurre il video senza interruzioni
         if (video.readyState >= 4) {
             resolve();
         } else {
             video.oncanplaythrough = resolve;
         }
       });
-      // ********************************************************************
       
       const texture = new THREE.VideoTexture(video);
 
@@ -45,7 +57,6 @@
       const anchor = mindarThree.addAnchor(0); 
       anchor.group.add(plane);
 
-      // ***** EVENTI DI DEBUG E CONTROLLO PLAY/PAUSE *****
       anchor.onTargetFound = () => {
           console.log("✅ MARKER TROVATO! Avvio l'animazione.");
           video.play();
@@ -55,7 +66,6 @@
           console.log("❌ MARKER PERSO! Metto in pausa l'animazione.");
           video.pause();
       };
-      // **************************************************
 
       await mindarThree.start();
 
