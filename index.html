@@ -5,6 +5,7 @@
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.0/dist/mindar-image-three.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
   <style>
+    /* Assicura che la telecamera sia a schermo intero */
     body, html { 
         margin: 0; 
         overflow: hidden; 
@@ -37,6 +38,7 @@
 
       const video = document.querySelector("#video");
       
+      // Fix per il timing del video
       await new Promise(resolve => {
         if (video.readyState >= 4) {
             resolve();
@@ -47,11 +49,12 @@
       
       const texture = new THREE.VideoTexture(video);
 
-      // Le proporzioni 1 : 1.4 (ossia 70cm x 50cm)
+      // ***** FIX: Proporzioni ORRIZONTALI (70cm x 50cm = 1.4 : 1) *****
       const plane = new THREE.Mesh(
-        new THREE.PlaneGeometry(1, 1.4), 
+        new THREE.PlaneGeometry(1.4, 1), 
         new THREE.MeshBasicMaterial({map: texture})
       );
+      // *******************************************************************
 
       const anchor = mindarThree.addAnchor(0); 
       anchor.group.add(plane);
