@@ -1,44 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.0/dist/mindar-image-three.prod.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
-  <style>
-    /* Assicura che la telecamera sia a schermo intero */
-    body, html { 
-        margin: 0; 
-        overflow: hidden; 
-        width: 100%; 
-        height: 100%;
-    }
-    #container {
-        width: 100%; 
-        height: 100%; 
-        position: relative;
-    }
-  </style>
-</head>
-<body>
-  <div id="container"></div> 
-  
-  <video id="video" src="video.mp4" loop muted playsinline preload="auto" style="display:none"></video>
-
-  <script>
+<script>
     document.addEventListener("DOMContentLoaded", async () => {
       
       const container = document.getElementById('container');
 
       const mindarThree = new window.MINDAR.IMAGE.MindARThree({
         container: container,
-        imageTargetSrc: "./mindar-image-target.mind" 
+        imageTargetSrc: "./mindar-image-target.mind",
+        // Nuove impostazioni per tracking più stabile e reattivo
+        maxTrack: 2,         
+        filterMinCF: 0.0001
       });
 
       const {renderer, scene, camera} = mindarThree;
 
       const video = document.querySelector("#video");
       
-      // Fix per il timing del video
       await new Promise(resolve => {
         if (video.readyState >= 4) {
             resolve();
@@ -49,12 +25,13 @@
       
       const texture = new THREE.VideoTexture(video);
 
-      // ***** FIX: Proporzioni ORRIZONTALI (70cm x 50cm = 1.4 : 1) *****
       const plane = new THREE.Mesh(
         new THREE.PlaneGeometry(1.4, 1), 
         new THREE.MeshBasicMaterial({map: texture})
       );
-      // *******************************************************************
+      
+      // Sposta il piano virtuale leggermente indietro per evitare lo "stacco"
+      plane.position.z = -0.01; 
 
       const anchor = mindarThree.addAnchor(0); 
       anchor.group.add(plane);
@@ -76,5 +53,3 @@
       loop();
     });
   </script>
-</body>
-</html>
