@@ -50,10 +50,13 @@
       const texture = new THREE.VideoTexture(video);
 
       // ***** FIX: Proporzioni ORRIZONTALI (70cm x 50cm = 1.4 : 1) *****
-      const plane = new THREE.Mesh(
+    const plane = new THREE.Mesh(
         new THREE.PlaneGeometry(1.4, 1), 
         new THREE.MeshBasicMaterial({map: texture})
       );
+
+      // Sposta il piano leggermente indietro (-Z) per ancorarlo alla superficie
+      plane.position.z = -0.01;
       // *******************************************************************
 
       const anchor = mindarThree.addAnchor(0); 
